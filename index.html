@@ -1,0 +1,183 @@
+<! DOCTYPE html>
+<html lang="id">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>🚀 Space Shooter - Gesture Control</title>
+		<link rel="stylesheet" href="style.css" />
+	</head>
+	<body>
+		<div id="game-container">
+			<!-- Layar Start -->
+			<div id="start-screen" class="screen">
+				<div class="stars-bg"></div>
+				<h1>🚀 SPACE SHOOTER</h1>
+				<p class="subtitle">Gesture Controlled</p>
+
+				<div class="high-score-display">
+					<span>🏆 HIGH SCORE: </span>
+					<span id="high-score-value">0</span>
+				</div>
+
+				<div class="instructions">
+					<h3>📖 Cara Bermain:</h3>
+					<ul>
+						<li>👋 Gerakkan tangan untuk mengontrol pesawat</li>
+						<li>✊ Kepalkan tangan untuk <strong>MENEMBAK</strong></li>
+						<li>✌️ Dua jari (peace) untuk <strong>BOM</strong></li>
+					</ul>
+					<div class="keyboard-fallback">
+						<p>⌨️ Keyboard Backup:</p>
+						<span>WASD/Arrow = Gerak</span>
+						<span>SPACE = Tembak</span>
+						<span>B = Bom</span>
+						<span>P/ESC = Pause</span>
+					</div>
+				</div>
+
+				<div class="button-group">
+					<button id="start-btn" class="btn-primary">🎮 MULAI GAME</button>
+					<button id="start-keyboard-btn" class="btn-secondary">
+						⌨️ Mode Keyboard Only
+					</button>
+				</div>
+
+				<p class="camera-note">
+					⚠️ Game membutuhkan akses kamera untuk gesture control
+				</p>
+
+				<div class="credits">
+					<p>Dibuat untuk Promosi SMK 🎓</p>
+				</div>
+			</div>
+
+			<!-- Layar Loading -->
+			<div id="loading-screen" class="screen hidden">
+				<div class="loader-container">
+					<div class="loader"></div>
+					<div class="loader-ring"></div>
+				</div>
+				<p id="loading-text">Memuat AI Hand Tracking...</p>
+				<div class="progress-bar">
+					<div id="progress-fill" class="progress-fill"></div>
+				</div>
+				<p class="loading-tip">
+					💡 Tip: Pastikan ruangan cukup terang untuk deteksi tangan yang
+					optimal
+				</p>
+			</div>
+
+			<!-- Layar Game -->
+			<div id="game-screen" class="screen hidden">
+				<video id="webcam" autoplay playsinline></video>
+				<canvas id="game-canvas"></canvas>
+
+				<div id="webcam-preview">
+					<canvas id="preview-canvas"></canvas>
+					<div id="hand-status">👋 Mencari tangan...</div>
+				</div>
+
+				<div id="hud">
+					<div id="score-container">
+						<span class="hud-label">SKOR</span>
+						<span id="score">0</span>
+					</div>
+					<div id="level-container">
+						<span class="hud-label">LEVEL</span>
+						<span id="level">1</span>
+					</div>
+					<div id="lives-container">
+						<span class="hud-label">NYAWA</span>
+						<span id="lives">❤️❤️❤️</span>
+					</div>
+					<div id="bombs-container">
+						<span class="hud-label">BOM</span>
+						<span id="bombs">💣💣💣</span>
+					</div>
+				</div>
+
+				<div id="combo-display" class="hidden">
+					<span id="combo-count">0</span>
+					<span>COMBO! </span>
+				</div>
+
+				<div id="level-up-display" class="hidden">
+					<span>⬆️ LEVEL UP!</span>
+					<span id="new-level">2</span>
+				</div>
+
+				<div id="boss-health-container" class="hidden">
+					<span class="boss-label">👾 BOSS</span>
+					<div class="boss-health-bar">
+						<div id="boss-health-fill"></div>
+					</div>
+				</div>
+
+				<div id="pause-overlay" class="hidden">
+					<div class="pause-content">
+						<h2>⏸️ PAUSED</h2>
+						<button id="resume-btn" class="btn-primary">▶️ LANJUTKAN</button>
+						<button id="quit-btn" class="btn-secondary">🏠 KELUAR</button>
+					</div>
+				</div>
+
+				<button id="pause-btn" class="pause-btn">⏸️</button>
+			</div>
+
+			<!-- Layar Game Over -->
+			<div id="gameover-screen" class="screen hidden">
+				<div class="gameover-content">
+					<h1>💥 GAME OVER</h1>
+
+					<div id="new-highscore" class="hidden">
+						<span>🎉 NEW HIGH SCORE! 🎉</span>
+					</div>
+
+					<div class="final-score">
+						<p>Skor Akhir</p>
+						<span id="final-score">0</span>
+					</div>
+
+					<div class="stats">
+						<div class="stat">
+							<span class="stat-label">Level Tercapai</span>
+							<span id="final-level">1</span>
+						</div>
+						<div class="stat">
+							<span class="stat-label">Musuh Dikalahkan</span>
+							<span id="enemies-killed">0</span>
+						</div>
+						<div class="stat">
+							<span class="stat-label">Boss Dikalahkan</span>
+							<span id="bosses-killed">0</span>
+						</div>
+						<div class="stat">
+							<span class="stat-label">Combo Tertinggi</span>
+							<span id="max-combo">0</span>
+						</div>
+						<div class="stat">
+							<span class="stat-label">Akurasi</span>
+							<span id="accuracy">0%</span>
+						</div>
+					</div>
+
+					<div class="button-group">
+						<button id="restart-btn" class="btn-primary">🔄 MAIN LAGI</button>
+						<button id="menu-btn" class="btn-secondary">🏠 MENU UTAMA</button>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Load TensorFlow. js dan MediaPipe - FIXED URLs -->
+		<script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.4.1675469240/hands.min.js"></script>
+		<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-core"></script>
+		<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-backend-webgl"></script>
+		<script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/hand-pose-detection"></script>
+
+		<!-- Game Scripts - FIXED -->
+		<script src="sound.js"></script>
+		<script src="hand-tracking.js"></script>
+		<script src="game.js"></script>
+	</body>
+</html>
